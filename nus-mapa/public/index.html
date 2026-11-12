@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#3A0E82">
+<title>II Afterwork Impulsa't · Mapa de connexions</title>
+<link rel="stylesheet" href="/static/nus.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/static/tarragona-impulsa.png" alt="Tarragona Impulsa"><span><b>II Afterwork Impulsa't</b>19.11.26</span></div>
+
+  <!-- Registre -->
+  <section id="reg" class="hidden">
+    <p class="kicker">Teixint complicitats</p>
+    <h1>Entra al mapa de connexions</h1>
+    <p class="lead">Un minut i ja tens el teu QR. A la pantalla només hi sortiran el teu nom, la comunitat i el sector.</p>
+    <form id="f" class="card" autocomplete="on">
+      <label for="nom" style="margin-top:0">Nom i cognom</label>
+      <input type="text" id="nom" name="nom" maxlength="60" required autocomplete="name">
+      <label for="empresa">Empresa o projecte</label>
+      <input type="text" id="empresa" name="empresa" maxlength="80" autocomplete="organization">
+      <label for="sector">Sector</label>
+      <select id="sector" required><option value="">Tria'n un…</option></select>
+      <label for="xarxa">Comunitat amb què més participes o t'identifiques</label>
+      <select id="xarxa" required><option value="">Tria'n una…</option></select>
+      <label for="contacte">Com et poden contactar? <span class="muted">(opcional)</span></label>
+      <input type="text" id="contacte" maxlength="120" placeholder="Correu, LinkedIn o telèfon">
+      <div class="hint">Només ho veuran les persones amb qui et connectis.</div>
+      <label class="check"><input type="checkbox" id="consent" required>
+        <span>Accepto que es tractin aquestes dades per al mapa de connexions de l'Afterwork Impulsa't i per a un missatge de seguiment al cap de 30 dies. Es mostraran nom, comunitat i sector a la pantalla. Les dades s'esborraran en acabar el seguiment.</span></label>
+      <button class="btn btn-primary" type="submit">Crear el meu QR</button>
+      <div class="err" id="ferr"></div>
+    </form>
+  </section>
+
+  <!-- Usuari registrat -->
+  <section id="app" class="hidden">
+    <div class="tabs" role="tablist">
+      <button data-t="qr" class="on">El meu QR</button>
+      <button data-t="cx">Connexions <span id="ncx"></span></button>
+      <button data-t="pg">Programa</button>
+    </div>
+
+    <div id="t-qr">
+      <div class="card" style="text-align:center">
+        <div class="who" style="justify-content:center"><span class="dot" id="mydot"></span><span class="n" id="mynom"></span></div>
+        <div class="muted" id="mysub" style="font-size:14px;margin-top:4px"></div>
+        <div class="qr"><img id="myqr" alt="El teu codi QR"></div>
+        <div class="code">CODI <b id="mycode"></b></div>
+      </div>
+      <p class="hint">Ensenya aquest QR: l'altra persona l'escaneja amb la càmera del mòbil i tria si és un <b>contacte/cafè</b> o una <b>proposta de col·laboració</b>. Per connectar-te tu, escaneja el seu.</p>
+      <div class="card" style="margin-top:14px">
+        <label for="codi" style="margin-top:0">La càmera no llegeix el QR? Escriu el seu codi</label>
+        <form class="manual" id="fm"><input type="text" id="codi" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD"><button class="btn btn-primary" type="submit">Anar</button></form>
+        <div class="err" id="merr"></div>
+      </div>
+      <p class="hint">Si tanques el navegador, pots tornar al teu QR amb el teu enllaç personal: <a id="mylink" href="#">copiar l'enllaç</a></p>
+    </div>
+
+    <div id="t-cx" class="hidden">
+      <div class="list" id="cxlist"></div>
+      <p class="hint" id="cxempty">Encara no tens connexions. Escaneja el QR d'algú per començar!</p>
+    </div>
+
+    <div id="t-pg" class="hidden">
+      <div class="prog">
+        <h3>Programa</h3>
+        <div class="it"><b>17:30</b><span>Obrim portes</span></div>
+        <div class="it"><b>18:00</b><span>Acollida (mapa de connexions amb el mòbil QR)</span></div>
+        <div class="it"><b>18:10</b><span><em>Benvinguda</em> institucional</span></div>
+        <div class="it box"><b>18:15</b><span><em>Pòdcast</em> amb cadira buida amb <em>Karim Casadó</em> (CEO i cofundador de Somni Game Studios) i <em>Maria Larroy</em> (cofundadora de Pas a Pas Comunicació i METSData)</span></div>
+        <div class="it"><b>19:00</b><span>Reconeixement premis programes TESS, Tgn Start Up i Explorer</span></div>
+        <div class="it"><b>19:10</b><span><em>Pitch de xarxes</em> (1 minut per xarxa: qui som i en quina illa ens trobareu)</span></div>
+        <div class="it box"><b>19:20</b><span><em>Illes temàtiques</em> (per afavorir les connexions entre els assistents)
+          <div class="ill">· Talent i RH<br>· Finançament<br>· Tecnologia i IA<br>· Vendes<br>· Contactes estratègics<br>· Economia circular</div></span></div>
+        <div class="it"><b>20:00</b><span>Revelació i comiat (projecció a la pantalla de les connexions)</span></div>
+        <div class="it"><b>20:10</b><span><em>Networking</em> lliure amb el càtering</span></div>
+      </div>
+      <p class="hint">Seminari de Tarragona · Carrer de Sant Pau, 4 · Tarragona</p>
+    </div>
+  </section>
+
+  <section id="closed" class="hidden"><h1>El registre està tancat</h1><p class="lead">Gràcies per venir a l'Afterwork Impulsa't!</p></section>
+</div>
+<script src="/static/common.js"></script>
+<script>
+(async () => {
+  const cfg = await api('/api/config');
+  const params = new URLSearchParams(location.search);
+  const next = params.get('next');
+  const st = await api('/api/me');
+  if (!st.me) {
+    if (!cfg.registreObert) return show('closed');
+    fillSelects(cfg);
+    show('reg');
+    $('#f').addEventListener('submit', async e => {
+      e.preventDefault(); $('#ferr').textContent = '';
+      const btn = e.submitter || $('#f button'); btn.disabled = true;
+      try {
+        await api('/api/register', { nom: $('#nom').value, empresa: $('#empresa').value, sector: $('#sector').value, xarxa: $('#xarxa').value, contacte: $('#contacte').value, consent: $('#consent').checked });
+        if (next && /^[A-Z0-9]{4}$/i.test(next)) location.href = '/c/' + next.toUpperCase(); else location.reload();
+      } catch (err) { $('#ferr').textContent = err.message; btn.disabled = false; }
+    });
+    return;
+  }
+  if (next && /^[A-Z0-9]{4}$/i.test(next)) { location.href = '/c/' + next.toUpperCase(); return; }
+  const me = st.me, x = xarxa(cfg, me.xarxa);
+  $('#mynom').textContent = me.nom;
+  $('#mysub').textContent = [me.empresa, x.nom].filter(Boolean).join(' · ');
+  $('#mydot').style.background = x.color;
+  $('#myqr').src = '/qr/' + me.code + '.svg';
+  $('#mycode').textContent = me.code;
+  $('#mylink').addEventListener('click', async e => {
+    e.preventDefault();
+    try { await navigator.clipboard.writeText(me.link); e.target.textContent = 'copiat ✓'; }
+    catch { prompt('Guarda aquest enllaç:', me.link); }
+  });
+  show('app');
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(o => o.classList.toggle('on', o === b));
+    ['qr', 'cx', 'pg'].forEach(t => $('#t-' + t).classList.toggle('hidden', t !== b.dataset.t));
+    if (b.dataset.t === 'cx') refresh();
+  }));
+  $('#fm').addEventListener('submit', async e => {
+    e.preventDefault(); $('#merr').textContent = '';
+    const c = $('#codi').value.trim().toUpperCase();
+    if (!/^[A-Z0-9]{4}$/.test(c)) return $('#merr').textContent = 'El codi té 4 caràcters.';
+    try { await api('/api/person/' + c); location.href = '/c/' + c; } catch (err) { $('#merr').textContent = err.message; }
+  });
+  function render(list) {
+    $('#ncx').textContent = list.length ? '(' + list.length + ')' : '';
+    $('#cxempty').classList.toggle('hidden', list.length > 0);
+    $('#cxlist').replaceChildren(...list.map(p => {
+      const d = el('div', 'conn' + (p.type === 'collab' ? ' collab' : ''));
+      d.append(el('div', 'n', p.nom), el('div', 's', [p.empresa, xarxa(cfg, p.xarxa).nom, p.sector].filter(Boolean).join(' · ')));
+      d.append(el('div', 'c', (p.type === 'collab' ? '🤝 Proposta de col·laboració' : '☕ Contacte / cafè') + (p.contacte ? ' — ' + p.contacte : '')));
+      return d;
+    }));
+  }
+  async function refresh() { try { render((await api('/api/me')).connexions); } catch {} }
+  render(st.connexions);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+})();
+</script>
+</body>
+</html>

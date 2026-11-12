@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#3A0E82">
+<title>II Afterwork Impulsa't · Nova connexió</title>
+<link rel="stylesheet" href="/static/nus.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/static/tarragona-impulsa.png" alt="Tarragona Impulsa"><span><b>II Afterwork Impulsa't</b>Mapa de connexions</span></div>
+
+  <section id="need" class="hidden">
+    <h1>Primer, entra al mapa</h1>
+    <p class="lead">Per connectar-te amb <b id="nname"></b> necessites el teu propi QR. És un minut.</p>
+    <a class="btn btn-primary" id="goreg" href="/">Registrar-me</a>
+  </section>
+
+  <section id="conn" class="hidden">
+    <p class="kicker">Teixint complicitats</p>
+    <h1>Nova connexió</h1>
+    <div class="card"><div class="who"><span class="dot" id="odot"></span><div><div class="n" id="onom"></div><div class="s" id="osub"></div></div></div>
+      <span class="chip hidden" id="already"></span></div>
+    <h2>Què us emporteu d'aquesta conversa?</h2>
+    <button class="btn btn-cafe" data-type="cafe">☕ Contacte / cafè<small>Ens hem conegut i en volem parlar més</small></button>
+    <button class="btn btn-collab" data-type="collab">🤝 Proposta de col·laboració<small>Hi ha una idea concreta per treballar junts</small></button>
+    <div class="err" id="cerr"></div>
+    <a class="btn btn-ghost" href="/">Tornar al meu QR</a>
+  </section>
+
+  <section id="done" class="hidden">
+    <div class="ok" id="okicon">✓</div>
+    <h1 style="text-align:center" id="oktitle">Connexió feta!</h1>
+    <p class="lead" style="text-align:center">Ja és al mapa. Mira la pantalla! ✨</p>
+    <div class="card" id="contactcard"><div class="muted" style="font-size:13px">Contacte de <span id="cname"></span></div><div id="ccontact" style="margin-top:6px;word-break:break-word"></div></div>
+    <a class="btn btn-primary" href="/">Tornar al meu QR</a>
+  </section>
+
+  <section id="closed" class="hidden"><h1>Aquest codi no existeix</h1><p class="lead">Revisa'l o torna a escanejar el QR.</p><a class="btn btn-ghost" href="/">Anar al meu QR</a></section>
+</div>
+<script src="/static/common.js"></script>
+<script>
+(async () => {
+  const code = location.pathname.split('/').pop().toUpperCase();
+  const cfg = await api('/api/config');
+  const st = await api('/api/me');
+  let info;
+  try { info = await api('/api/person/' + code); } catch { return show('closed'); }
+  const o = info.person, x = xarxa(cfg, o.xarxa);
+  if (!st.me) { $('#nname').textContent = o.nom; $('#goreg').href = '/?next=' + code; return show('need'); }
+  if (info.self) { location.href = '/'; return; }
+  $('#onom').textContent = o.nom;
+  $('#osub').textContent = [o.empresa, x.nom, o.sector].filter(Boolean).join(' · ');
+  $('#odot').style.background = x.color;
+  if (info.connexio) { const a = $('#already'); a.textContent = info.connexio === 'collab' ? 'Ja teniu una proposta de col·laboració' : 'Ja sou contacte/cafè · pots pujar-ho a col·laboració'; a.classList.remove('hidden'); }
+  show('conn');
+  document.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
+    document.querySelectorAll('[data-type]').forEach(z => z.disabled = true);
+    try {
+      const r = await api('/api/connect', { code, type: b.dataset.type });
+      $('#okicon').textContent = r.type === 'collab' ? '🤝' : '☕';
+      $('#oktitle').textContent = r.type === 'collab' ? 'Proposta de col·laboració!' : 'Connexió feta!';
+      $('#cname').textContent = r.person.nom;
+      $('#ccontact').textContent = r.person.contacte || 'No ha deixat contacte: busqueu-vos al networking!';
+      show('done');
+    } catch (e) { $('#cerr').textContent = e.message; document.querySelectorAll('[data-type]').forEach(z => z.disabled = false); }
+  }));
+})();
+</script>
+</body>
+</html>

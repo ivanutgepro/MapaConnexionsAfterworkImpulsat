@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>II Afterwork Impulsa't · Pantalla del mapa</title>
+<link rel="stylesheet" href="/static/nus.css">
+<style>
+  html,body{height:100%;overflow:hidden;cursor:default}
+  body::before,body::after{display:none}
+  .screen{display:grid;grid-template-columns:1fr 390px;height:100vh;position:relative;z-index:1}
+  #graph{position:relative;overflow:hidden}
+  #graph::before{content:'';position:absolute;right:40px;top:150px;width:200px;height:130px;opacity:.3;pointer-events:none;
+    background-image:radial-gradient(circle,#D7B8FF 3px,transparent 3.5px);background-size:28px 28px}
+  svg{width:100%;height:100%;display:block;position:relative}
+  .title{position:absolute;left:40px;top:30px;pointer-events:none;transition:opacity .8s}
+  .title .k{font-weight:700;font-size:22px}
+  .title h1{font-size:64px;line-height:.95;margin:4px 0 0;font-weight:800}
+  .title .sub{color:var(--soft);font-size:18px;margin-top:10px;font-weight:400}
+  .keyl{position:absolute;left:40px;bottom:28px;display:flex;gap:24px;color:var(--soft);font-size:16px;align-items:center}
+  .keyl i{display:inline-block;width:36px;height:0;border-top:2px solid rgba(255,255,255,.85);vertical-align:middle;margin-right:8px}
+  .keyl i.g{border-top:4px solid var(--pink)}
+  aside{background:rgba(42,10,99,.38);border-left:1px solid var(--stroke);padding:28px 28px 24px;display:flex;flex-direction:column;gap:18px;overflow:hidden;backdrop-filter:blur(8px)}
+  aside .logo{height:42px;align-self:flex-start}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kpi{background:var(--glass);border:1px solid var(--stroke);border-radius:18px;padding:14px 16px}
+  .kpi .v{font-weight:800;font-size:44px;line-height:1}
+  .kpi .l{color:var(--soft);font-size:14px;margin-top:6px}
+  .kpi.pink{background:var(--pink);border-color:var(--pink)} .kpi.pink .l{color:#fff}
+  .kpi.white{background:#fff;color:var(--violet)} .kpi.white .l{color:#6B4E9C}
+  .legend{display:flex;flex-direction:column;gap:7px;font-size:15px}
+  .legend div{display:flex;align-items:center;gap:9px}
+  .legend .dot{width:12px;height:12px}
+  .legend .c{margin-left:auto;color:var(--soft);font-variant-numeric:tabular-nums}
+  .join{margin-top:auto;display:flex;gap:16px;align-items:center;border:1.5px solid var(--stroke);border-radius:999px 24px 24px 999px;padding:12px 18px 12px 12px}
+  .join img{width:118px;height:118px;background:#fff;border-radius:50%;padding:16px}
+  .join b{font-weight:800;font-size:20px;display:block;margin-bottom:4px}
+  .join span{color:var(--soft);font-size:14px;word-break:break-all}
+  .sec{font-weight:700;font-size:15px;color:var(--soft)}
+  /* Revelació: targeta blanca com el programa */
+  #reveal{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:40px;pointer-events:none;opacity:0;transition:opacity .8s}
+  .reveal-on #reveal{opacity:1}
+  .reveal-on .title{opacity:.2}
+  .rp{width:min(640px,60%);background:#fff;color:#2B2140;border-radius:26px;padding:30px 36px;box-shadow:0 30px 80px rgba(30,0,70,.45)}
+  .rp .sec{color:var(--magenta);font-weight:700;font-size:16px;margin-top:4px}
+  .rp h2{font-size:44px;font-weight:300;color:var(--magenta);margin:0 0 18px;letter-spacing:-.02em}
+  .big{display:flex;gap:30px;margin-bottom:18px}
+  .big div .v{font-weight:800;font-size:68px;line-height:1;color:var(--violet)}
+  .big div .l{color:#6B5A85;font-size:16px;margin-top:6px}
+  .rp ol{margin:4px 0 14px;padding-left:24px;font-size:19px;line-height:1.5}
+  .rp ol li span{color:#8A7AA3;font-size:16px}
+  .toast{position:absolute;right:30px;top:28px;background:#fff;color:var(--violet);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;opacity:0;transform:translateY(-10px);transition:all .4s;box-shadow:0 10px 30px rgba(30,0,70,.35)}
+  .toast.on{opacity:1;transform:none}
+  .toast.collab{background:var(--pink);color:#fff}
+  text{font-family:Outfit,sans-serif;fill:#fff;pointer-events:none;font-weight:500;paint-order:stroke;stroke:rgba(42,10,99,.55);stroke-width:3px}
+  #status{position:absolute;right:12px;bottom:8px;font-size:11px;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <div id="graph">
+    <svg id="svg"></svg>
+    <div class="title"><div class="k">Teixint complicitats</div><h1>Mapa de<br>connexions</h1><div class="sub" id="sub"></div></div>
+    <div class="keyl"><span><i></i>Contacte / cafè</span><span><i class="g"></i>Proposta de col·laboració</span></div>
+    <div id="reveal"><div class="rp">
+      <div class="sec">Revelació</div>
+      <h2>Avui, el mapa diu…</h2>
+      <div class="big">
+        <div><div class="v" id="r-x">0</div><div class="l">connexions entre comunitats</div></div>
+        <div><div class="v" id="r-p">0%</div><div class="l">del total</div></div>
+        <div><div class="v" id="r-c" style="color:var(--pink)">0</div><div class="l">propostes de col·laboració</div></div>
+      </div>
+      <div class="sec">Les comunitats que més s'han lligat</div><ol id="r-px"></ol>
+      <div class="sec">Sectors que s'han trobat</div><ol id="r-ps"></ol>
+      <div class="sec">Persones pont</div><ol id="r-pt"></ol>
+    </div></div>
+    <div class="toast" id="toast"></div>
+    <div id="status"></div>
+  </div>
+  <aside>
+    <img class="logo" src="/static/tarragona-impulsa.png" alt="Tarragona Impulsa">
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="k-p">0</div><div class="l">persones al mapa</div></div>
+      <div class="kpi"><div class="v" id="k-c">0</div><div class="l">connexions</div></div>
+      <div class="kpi white"><div class="v" id="k-x">0</div><div class="l">entre comunitats</div></div>
+      <div class="kpi pink"><div class="v" id="k-g">0</div><div class="l">col·laboracions</div></div>
+    </div>
+    <div class="sec">Comunitats</div>
+    <div class="legend" id="legend"></div>
+    <div class="join"><img src="/qr/registre.svg" alt="QR de registre"><div><b>Entra al mapa</b><span>Escaneja amb la càmera del mòbil</span><br><span id="url"></span></div></div>
+  </aside>
+</div>
+<script src="/vendor/d3.min.js"></script>
+<script src="/static/common.js"></script>
+<script>
+(async () => {
+  const cfg = await api('/api/config');
+  const XC = Object.fromEntries(cfg.xarxes.map(x => [x.id, x]));
+  $('#sub').textContent = 'II Afterwork Impulsa\'t · 19.11.26';
+  $('#url').textContent = location.host;
+  const svg = d3.select('#svg'), gRoot = svg.append('g'), gL = gRoot.append('g'), gFx = gRoot.append('g'), gN = gRoot.append('g');
+  let W = 0, H = 0, centers = {};
+  function layout() {
+    const r = $('#graph').getBoundingClientRect(); W = r.width; H = r.height;
+    const ids = cfg.xarxes.map(x => x.id), R = Math.min(W, H) * 0.31;
+    ids.forEach((id, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / ids.length; centers[id] = { x: W / 2 + R * Math.cos(a) * 1.15, y: H / 2 + 30 + R * Math.sin(a) }; });
+  }
+  layout();
+  const nodes = new Map(); let links = [], known = new Set(), first = true, reveal = false;
+  const sim = d3.forceSimulation().alphaDecay(0.02)
+    .force('charge', d3.forceManyBody().strength(-60))
+    .force('collide', d3.forceCollide(d => radius(d) + 6))
+    .force('link', d3.forceLink().id(d => d.id).distance(l => l.cross ? 140 : 60).strength(0.08))
+    .force('x', d3.forceX(d => (centers[d.xarxa] || { x: W / 2 }).x).strength(0.07))
+    .force('y', d3.forceY(d => (centers[d.xarxa] || { y: H / 2 }).y).strength(0.07))
+    .on('tick', tick);
+  const deg = {};
+  const radius = d => 7 + Math.min(14, Math.sqrt(deg[d.id] || 0) * 4);
+
+  function update(data) {
+    const s = data.stats;
+    $('#k-p').textContent = s.persones; $('#k-c').textContent = s.connexions; $('#k-x').textContent = s.entreXarxes; $('#k-g').textContent = s.collab;
+    $('#legend').replaceChildren(...cfg.xarxes.map(x => { const d = el('div'); const dot = el('span', 'dot'); dot.style.background = x.color; d.append(dot, el('span', null, x.nom), el('span', 'c', s.perXarxa[x.id] || 0)); return d; }));
+    // nodes
+    const ids = new Set(data.nodes.map(n => n.id));
+    for (const id of [...nodes.keys()]) if (!ids.has(id)) nodes.delete(id);
+    for (const n of data.nodes) {
+      if (nodes.has(n.id)) Object.assign(nodes.get(n.id), n);
+      else { const c = centers[n.xarxa] || { x: W / 2, y: H / 2 }; nodes.set(n.id, { ...n, x: c.x + (Math.random() - .5) * 40, y: c.y + (Math.random() - .5) * 40 }); }
+    }
+    for (const k in deg) delete deg[k];
+    links = data.links.filter(l => nodes.has(l.source) && nodes.has(l.target)).map(l => {
+      deg[l.source] = (deg[l.source] || 0) + 1; deg[l.target] = (deg[l.target] || 0) + 1;
+      return { ...l, cross: nodes.get(l.source).xarxa !== nodes.get(l.target).xarxa };
+    });
+    const fresh = first ? [] : links.filter(l => !known.has(l.id + l.type));
+    known = new Set(links.map(l => l.id + l.type));
+    first = false;
+
+    gL.selectAll('line').data(links, l => l.id).join('line')
+      .attr('stroke', l => l.type === 'collab' ? '#FF0F96' : '#FFFFFF')
+      .attr('stroke-opacity', l => l.type === 'collab' ? 0.95 : 0.55)
+      .attr('stroke-width', l => l.type === 'collab' ? 3.5 : 1.6);
+    const ng = gN.selectAll('g.n').data([...nodes.values()], d => d.id).join(enter => {
+      const g = enter.append('g').attr('class', 'n');
+      g.append('circle').attr('r', 0).transition().duration(700).attr('r', d => radius(d));
+      g.append('text').attr('dy', d => radius(d) + 14).attr('text-anchor', 'middle').attr('font-size', 12);
+      return g;
+    });
+    ng.select('circle').attr('fill', d => (XC[d.xarxa] || {}).color || '#94A3B8').attr('stroke', '#2A0A63').attr('stroke-width', 2.5).transition().duration(400).attr('r', d => radius(d));
+    ng.select('text').text(d => d.nom.split(' ').slice(0, 2).join(' ')).attr('dy', d => radius(d) + 14).attr('opacity', nodes.size > 120 ? 0.6 : 0.9);
+
+    sim.nodes([...nodes.values()]);
+    sim.force('link').links(links);
+    sim.force('collide').radius(d => radius(d) + 6);
+    sim.alpha(fresh.length || data.nodes.length !== sim.__n ? 0.5 : 0.15).restart();
+    sim.__n = data.nodes.length;
+    fresh.slice(-4).forEach(pulse);
+    setReveal(!!data.state.reveal, s);
+  }
+  function tick() {
+    gL.selectAll('line').attr('x1', l => l.source.x).attr('y1', l => l.source.y).attr('x2', l => l.target.x).attr('y2', l => l.target.y);
+    gN.selectAll('g.n').attr('transform', d => `translate(${d.x},${d.y})`);
+  }
+  function pulse(l) {
+    setTimeout(() => {
+      const a = typeof l.source === 'object' ? l.source : nodes.get(l.source), b = typeof l.target === 'object' ? l.target : nodes.get(l.target);
+      if (!a || !b) return;
+      const col = l.type === 'collab' ? '#FF0F96' : '#FFFFFF';
+      gFx.append('circle').attr('cx', (a.x + b.x) / 2).attr('cy', (a.y + b.y) / 2).attr('r', 4).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 3)
+        .transition().duration(1400).ease(d3.easeCubicOut).attr('r', 60).attr('stroke-opacity', 0).remove();
+      toast(`${a.nom.split(' ')[0]} ${l.type === 'collab' ? '🤝' : '☕'} ${b.nom.split(' ')[0]}`, l.type);
+    }, 300);
+  }
+  let tt;
+  function toast(t, type) { const e = $('#toast'); e.textContent = t; e.className = 'toast on' + (type === 'collab' ? ' collab' : ''); clearTimeout(tt); tt = setTimeout(() => e.className = 'toast', 3500); }
+  function li(items, fmt) { return items.length ? items.map(i => { const l = el('li'); l.append(document.createTextNode(fmt(i)[0] + ' '), el('span', null, fmt(i)[1])); return l; }) : [el('li', 'muted', 'Encara poques dades')]; }
+  function setReveal(on, s) {
+    const changed = on !== reveal; reveal = on;
+    $('#screen').classList.toggle('reveal-on', on);
+    // en la revelació, el graf es desplaça a l'esquerra per deixar lloc al panell
+    if (changed) {
+    const sc = on ? 0.8 : 1, shift = on ? -W * 0.22 : 0;
+    gRoot.transition().duration(900).attr('transform', `translate(${W / 2 * (1 - sc) + shift},${H / 2 * (1 - sc)}) scale(${sc})`);
+    }
+    $('#r-x').textContent = s.entreXarxes; $('#r-p').textContent = s.pctEntreXarxes + '%'; $('#r-c').textContent = s.collab;
+    $('#r-px').replaceChildren(...li(s.topParellsXarxes, i => [i.k, `· ${i.v}`]));
+    $('#r-ps').replaceChildren(...li(s.topParellsSectors, i => [i.k, `· ${i.v}`]));
+    $('#r-pt').replaceChildren(...li(s.ponts, i => [i.nom, `· connectada amb ${i.xarxes} comunitats més`]));
+  }
+  // dades en directe
+  // es consulta cada 3 segons (Netlify no manté connexions obertes)
+  let sig = '';
+  async function poll() {
+    try {
+      const d = await api('/api/graph');
+      const s = JSON.stringify([d.nodes.length, d.links.map(l => l.id + l.type), d.state]);
+      if (s !== sig) { sig = s; update(d); }
+      $('#status').textContent = '● en directe';
+    } catch { $('#status').textContent = '○ reconnectant…'; }
+    setTimeout(poll, 3000);
+  }
+  poll();
+  window.addEventListener('resize', () => { layout(); sim.alpha(0.4).restart(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'f' || e.key === 'F') document.documentElement.requestFullscreen?.().catch(() => {});
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>II Afterwork Impulsa't · Administració</title>
+<link rel="stylesheet" href="/static/nus.css">
+<style>
+  .wrap{max-width:980px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi{background:rgba(42,10,99,.45);border:1px solid var(--stroke);border-radius:12px;padding:12px}
+  .kpi .v{font-weight:800;font-size:30px}.kpi .l{color:var(--muted);font-size:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row .btn{width:auto;flex:1;min-width:150px}
+  .switch{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--stroke)}
+  .switch:last-child{border:0}
+  .switch b{font-weight:700;font-size:16px}.switch div span{display:block;color:var(--muted);font-size:13px}
+  .tg{width:54px;height:30px;border-radius:999px;border:0;background:var(--glass2);position:relative;cursor:pointer;flex:none}
+  .tg::after{content:'';position:absolute;left:4px;top:4px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:.2s}
+  .tg.on{background:var(--pink)}.tg.on::after{left:28px;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--stroke);vertical-align:top}
+  th{color:var(--soft);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  td .x{background:none;border:0;color:var(--error);cursor:pointer;font-size:13px}
+  td .q{background:none;border:0;color:var(--pink);cursor:pointer;font-size:13px;padding:0}
+  .modal{position:fixed;inset:0;background:rgba(30,5,70,.85);display:grid;place-items:center;padding:20px;z-index:9}
+  .modal .card{max-width:380px;width:100%;text-align:center;background:#4A1795}
+  a.btn{box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/static/tarragona-impulsa.png" alt="Tarragona Impulsa"><span><b>II Afterwork Impulsa't</b>Administració del mapa</span></div>
+
+  <section id="login" class="card" style="max-width:420px">
+    <h1>Accés</h1>
+    <form id="lf"><label for="key">Clau d'administració</label><input type="text" id="key" autocomplete="off"><button class="btn btn-primary">Entrar</button><div class="err" id="lerr"></div></form>
+  </section>
+
+  <section id="main" class="hidden">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2 style="margin-top:0">Control de l'acte</h2>
+        <div class="switch"><div><b>Revelació a la pantalla</b><span>Activa-la a les 20:00 per llegir el mapa</span></div><button class="tg" id="tg-reveal" aria-label="Revelació"></button></div>
+        <div class="switch"><div><b>Registre obert</b><span>Tanca'l en acabar l'acte</span></div><button class="tg" id="tg-reg" aria-label="Registre"></button></div>
+        <div class="row" style="margin-top:6px">
+          <a class="btn btn-ghost" href="/pantalla" target="_blank">Obrir la pantalla</a>
+          <a class="btn btn-ghost" href="/cartell" target="_blank">Cartell amb QR</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Punt d'ajuda · registre a l'acollida</h2>
+        <form id="rf">
+          <input type="text" id="nom" placeholder="Nom i cognom" maxlength="60" required>
+          <input type="text" id="empresa" placeholder="Empresa o projecte" maxlength="80" style="margin-top:8px">
+          <select id="sector" required style="margin-top:8px"><option value="">Sector…</option></select>
+          <select id="xarxa" required style="margin-top:8px"><option value="">Comunitat…</option></select>
+          <input type="text" id="contacte" placeholder="Contacte (opcional)" maxlength="120" style="margin-top:8px">
+          <label class="check"><input type="checkbox" id="consent" required><span>La persona ha donat el consentiment verbal (RGPD).</span></label>
+          <button class="btn btn-primary">Registrar i mostrar el QR</button>
+          <div class="err" id="rerr"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">Exportacions per a la memòria i el seguiment</h2>
+      <div class="row">
+        <a class="btn btn-ghost" data-ex="graf.json">Graf (JSON)</a>
+        <a class="btn btn-ghost" data-ex="connexions.csv">Connexions (CSV)</a>
+        <a class="btn btn-ghost" data-ex="persones.csv">Persones (CSV)</a>
+        <a class="btn btn-collab" data-ex="seguiment.csv">Seguiment +30 dies (CSV)</a>
+      </div>
+      <p class="hint">El CSV de seguiment conté els contactes de qui va marcar una proposta de col·laboració. Tracta'l com a dada personal.</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row" style="align-items:center"><h2 style="margin:0;flex:1">Persones</h2><input type="text" id="q" placeholder="Cerca…" style="max-width:260px"></div>
+      <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Codi</th><th>Nom</th><th>Comunitat</th><th>Sector</th><th>Conn.</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+    </div>
+
+    <div class="card" style="margin-top:16px;border-color:rgba(255,180,200,.6)">
+      <h2 style="margin-top:0">Esborrar totes les dades (RGPD)</h2>
+      <p class="hint" style="margin-top:0">Fes-ho en acabar el seguiment, després d'exportar el que necessitis per a la memòria. Fes també una prova abans de l'acte i esborra-la.</p>
+      <form class="manual" id="wf"><input type="text" id="wipe" placeholder="ESBORRAR" style="letter-spacing:.1em"><button class="btn" style="background:#fff;color:#B4005A">Esborrar</button></form>
+      <div class="err" id="werr"></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal hidden" id="modal"><div class="card">
+  <div class="who" style="justify-content:center"><span class="n" id="mnom"></span></div>
+  <div class="qr"><img id="mqr" alt="QR"></div>
+  <div class="code">CODI <b id="mcode"></b></div>
+  <p class="hint">Mostra-li aquest QR perquè el fotografiï, o anota el codi a l'acreditació. Enllaç personal per obrir-lo al seu mòbil:</p>
+  <div style="font-size:13px;word-break:break-all" id="mlink"></div>
+  <button class="btn btn-primary" id="mclose">Fet</button>
+</div></div>
+
+<script src="/static/common.js"></script>
+<script>
+let KEY = ''; try { KEY = sessionStorage.getItem('nus_admin') || ''; } catch {}
+const H = () => ({ 'x-admin-key': KEY });
+let cfg, people = [];
+async function load() {
+  const d = await api('/api/admin/people', null, H());
+  people = d.people;
+  const s = d.stats;
+  $('#kpis').replaceChildren(...[[s.persones, 'persones'], [s.connexions, 'connexions'], [s.entreXarxes + ' (' + s.pctEntreXarxes + '%)', 'entre xarxes'], [s.collab, 'col·laboracions']]
+    .map(([v, l]) => { const k = el('div', 'kpi'); k.append(el('div', 'v', v), el('div', 'l', l)); return k; }));
+  $('#tg-reveal').classList.toggle('on', d.state.reveal);
+  $('#tg-reg').classList.toggle('on', d.state.registreObert);
+  renderTable();
+}
+function renderTable() {
+  const q = $('#q').value.trim().toLowerCase();
+  const rows = people.filter(p => !q || (p.nom + ' ' + p.empresa + ' ' + p.code).toLowerCase().includes(q)).sort((a, b) => b.createdAt - a.createdAt);
+  $('#tb').replaceChildren(...rows.map(p => {
+    const tr = el('tr');
+    const qb = el('button', 'q', p.code); qb.onclick = () => showQR(p.nom, p.code, p.link);
+    const td0 = el('td'); td0.append(qb);
+    const del = el('button', 'x', 'eliminar');
+    del.onclick = async () => { if (del.dataset.c) { await api('/api/admin/delete-person', { id: p.id }, H()); load(); } else { del.dataset.c = 1; del.textContent = 'segur?'; setTimeout(() => { delete del.dataset.c; del.textContent = 'eliminar'; }, 3000); } };
+    const tdx = el('td'); tdx.append(del);
+    tr.append(td0, el('td', null, p.nom + (p.empresa ? ' · ' + p.empresa : '')), el('td', null, xarxa(cfg, p.xarxa).nom), el('td', null, p.sector), el('td', null, p.grau), tdx);
+    return tr;
+  }));
+}
+function showQR(nom, code, link) { $('#mnom').textContent = nom; $('#mqr').src = '/qr/' + code + '.svg'; $('#mcode').textContent = code; $('#mlink').textContent = link; $('#modal').classList.remove('hidden'); }
+$('#mclose').onclick = () => $('#modal').classList.add('hidden');
+async function start() {
+  try { await load(); } catch (e) { $('#lerr').textContent = KEY ? e.message : ''; return; }
+  try { sessionStorage.setItem('nus_admin', KEY); } catch {}
+  $('#login').classList.add('hidden'); $('#main').classList.remove('hidden');
+  document.querySelectorAll('[data-ex]').forEach(a => a.href = '/api/admin/export/' + a.dataset.ex + '?key=' + encodeURIComponent(KEY));
+  setInterval(() => load().catch(() => {}), 5000);
+}
+(async () => {
+  cfg = await api('/api/config'); fillSelects(cfg);
+  $('#lf').onsubmit = e => { e.preventDefault(); KEY = $('#key').value.trim(); start(); };
+  $('#q').oninput = renderTable;
+  $('#tg-reveal').onclick = async () => { await api('/api/admin/state', { reveal: !$('#tg-reveal').classList.contains('on') }, H()); load(); };
+  $('#tg-reg').onclick = async () => { await api('/api/admin/state', { registreObert: !$('#tg-reg').classList.contains('on') }, H()); load(); };
+  $('#rf').onsubmit = async e => {
+    e.preventDefault(); $('#rerr').textContent = '';
+    try {
+      const r = await api('/api/admin/register', { nom: $('#nom').value, empresa: $('#empresa').value, sector: $('#sector').value, xarxa: $('#xarxa').value, contacte: $('#contacte').value, consent: $('#consent').checked }, H());
+      showQR($('#nom').value, r.code, r.link); $('#rf').reset(); load();
+    } catch (err) { $('#rerr').textContent = err.message; }
+  };
+  $('#wf').onsubmit = async e => {
+    e.preventDefault(); $('#werr').textContent = '';
+    try { await api('/api/admin/wipe', { confirm: $('#wipe').value.trim() }, H()); $('#wipe').value = ''; load(); } catch (err) { $('#werr').textContent = err.message; }
+  };
+  if (KEY) start();
+})();
+</script>
+</body>
+</html>

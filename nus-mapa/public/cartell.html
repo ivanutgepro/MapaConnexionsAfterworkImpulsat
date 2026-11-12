@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>II Afterwork Impulsa't · Cartell del mapa de connexions</title>
+<link rel="stylesheet" href="/static/nus.css">
+<style>
+  @page{size:A4;margin:0}
+  html,body{background:#fff;min-height:0}
+  body::before,body::after{display:none}
+  .a4{position:relative;overflow:hidden;width:210mm;height:297mm;margin:0 auto;background:var(--bg);color:#fff;padding:16mm 16mm 14mm;display:flex;flex-direction:column;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dots{position:absolute;width:52mm;height:34mm;background-image:radial-gradient(circle,#C9A7FF 1.1mm,transparent 1.3mm);background-size:7mm 7mm;opacity:.45}
+  .net{position:absolute;inset:0;width:100%;height:100%}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
+  .top img{height:15mm}
+  .top .k{font-weight:700;font-size:17pt;text-align:right}
+  h1{position:relative;font-size:52pt;line-height:.92;margin:14mm 0 4mm;font-weight:800;letter-spacing:-.03em}
+  .sub{position:relative;font-size:17pt;font-weight:500;margin:0}
+  .circle{position:relative;margin:12mm auto 0;width:118mm;height:118mm;border-radius:50%;border:.5mm solid rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.06)}
+  .circle .lbl{font-weight:800;font-size:17pt;margin-bottom:4mm}
+  .circle .qrw{background:#fff;border-radius:6mm;padding:4mm;width:68mm;height:68mm}
+  .circle img{width:100%;height:100%;display:block}
+  .circle .u{font-weight:600;font-size:12pt;margin-top:4mm}
+  .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;margin-top:auto}
+  .steps div{border:.4mm solid rgba(255,255,255,.5);border-radius:6mm;padding:4mm 5mm;font-size:12pt;line-height:1.3;background:rgba(42,10,99,.25)}
+  .steps b{display:block;font-weight:800;font-size:22pt;color:#fff}
+  .foot{position:relative;margin-top:7mm;font-size:12pt;display:flex;justify-content:space-between;opacity:.95}
+  .foot b{font-weight:300;font-size:26pt;line-height:1}
+  @media screen{body{padding:20px 0}}
+</style>
+</head>
+<body>
+<div class="a4">
+  <svg class="net" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true">
+    <g stroke="#E58BFF" stroke-width=".25" opacity=".6" fill="none">
+      <path d="M-5 120 L40 150 L18 215 L60 250 L-5 290"/><path d="M215 140 L170 175 L195 230 L150 262 L215 300"/>
+      <path d="M40 150 L105 140 L170 175"/><path d="M60 250 L105 280 L150 262"/>
+    </g>
+    <g fill="#FF0F96"><circle cx="40" cy="150" r="1.6"/><circle cx="18" cy="215" r="1.6"/><circle cx="60" cy="250" r="1.6"/><circle cx="170" cy="175" r="1.6"/><circle cx="195" cy="230" r="1.6"/><circle cx="150" cy="262" r="1.6"/><circle cx="105" cy="280" r="1.6"/></g>
+  </svg>
+  <div class="dots" style="top:8mm;right:8mm"></div>
+  <div class="dots" style="bottom:52mm;left:6mm;opacity:.3"></div>
+  <div class="top"><img src="/static/tarragona-impulsa.png" alt="Tarragona Impulsa"><div class="k">Teixint complicitats</div></div>
+  <h1>Mapa de<br>connexions</h1>
+  <p class="sub">II Afterwork Impulsa't · Escaneja, connecta't i mira la pantalla</p>
+  <div class="circle">
+    <div class="lbl">Entra al mapa</div>
+    <div class="qrw"><img src="/qr/registre.svg" alt="QR de registre"></div>
+    <div class="u" id="u"></div>
+  </div>
+  <div class="steps">
+    <div><b>1</b>Registra't amb el mòbil: un minut</div>
+    <div><b>2</b>Escaneja el QR de qui coneguis</div>
+    <div><b>3</b>Tria: cafè o col·laboració</div>
+  </div>
+  <div class="foot"><span>Seminari de Tarragona<br>Carrer de Sant Pau, 4</span><b>19.11.26</b></div>
+</div>
+<script>document.getElementById('u').textContent = location.host;</script>
+</body>
+</html>
